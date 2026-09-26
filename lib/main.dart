@@ -27,7 +27,8 @@ class SatelliteApp extends StatelessWidget {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  final String targetPhone = '967777905859';
+  // رقم الواتساب الخاص بك لاستقبال الطلبات
+  final String targetPhone = '967777083527';
 
   Future<void> sendOrderToWhatsApp(BuildContext context, String plan, String serial, String txId) async {
     final message = '''
@@ -37,15 +38,18 @@ class HomeScreen extends StatelessWidget {
 رقم عملية جيب: $txId
 ''';
 
-    // استخدام الرابط المباشر للواتساب لفتحه فوراً
-    final urlString = "https://api.whatsapp.com/send?phone=$targetPhone&text=${Uri.encodeComponent(message)}";
-    final uri = Uri.parse(urlString);
+    // رابط مباشر يعمل مع جميع أجهزة وتطبيقات واتساب
+    final url = "https://api.whatsapp.com/send?phone=$targetPhone&text=${Uri.encodeComponent(message)}";
+    final uri = Uri.parse(url);
 
     try {
-      await launchUrl(uri, mode: LaunchMode.externalNonBrowserApplication);
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
     } catch (_) {
       try {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

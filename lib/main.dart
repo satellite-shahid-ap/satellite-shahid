@@ -37,14 +37,21 @@ class HomeScreen extends StatelessWidget {
 رقم عملية جيب: $txId
 ''';
 
-    final uri = Uri.parse("https://wa.me/$targetPhone?text=${Uri.encodeComponent(message)}");
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعذر فتح واتساب، يرجى التأكد من تثبيته.')),
-        );
+    // استخدام الرابط المباشر للواتساب لفتحه فوراً
+    final urlString = "https://api.whatsapp.com/send?phone=$targetPhone&text=${Uri.encodeComponent(message)}";
+    final uri = Uri.parse(urlString);
+
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalNonBrowserApplication);
+    } catch (_) {
+      try {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('يرجى التأكد من تثبيت تطبيق واتساب في هاتفك')),
+          );
+        }
       }
     }
   }
@@ -179,4 +186,5 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
 

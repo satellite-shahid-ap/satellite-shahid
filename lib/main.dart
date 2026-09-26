@@ -27,8 +27,8 @@ class SatelliteApp extends StatelessWidget {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // رقم الواتساب الخاص بك لاستقبال الطلبات
-  final String targetPhone = '967777083527';
+  // رقم صاحب التطبيق / الموزع لاستقبال الطلبات
+  final String vendorPhone = '967777905859';
 
   Future<void> sendOrderToWhatsApp(BuildContext context, String plan, String serial, String txId) async {
     final message = '''
@@ -38,8 +38,8 @@ class HomeScreen extends StatelessWidget {
 رقم عملية جيب: $txId
 ''';
 
-    // رابط مباشر يعمل مع جميع أجهزة وتطبيقات واتساب
-    final url = "https://api.whatsapp.com/send?phone=$targetPhone&text=${Uri.encodeComponent(message)}";
+    // رابط مباشر ومتوافق لفتح محادثة صاحب التطبيق في واتساب
+    final url = "https://api.whatsapp.com/send?phone=$vendorPhone&text=${Uri.encodeComponent(message)}";
     final uri = Uri.parse(url);
 
     try {
@@ -47,15 +47,11 @@ class HomeScreen extends StatelessWidget {
       if (!launched) {
         await launchUrl(uri, mode: LaunchMode.platformDefault);
       }
-    } catch (_) {
-      try {
-        await launchUrl(uri, mode: LaunchMode.platformDefault);
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('يرجى التأكد من تثبيت تطبيق واتساب في هاتفك')),
-          );
-        }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر فتح واتساب، يرجى التأكد من تثبيته في هاتفك')),
+        );
       }
     }
   }

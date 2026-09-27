@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة المحامي الإلكتروني - القضاء اليمني</title>
+    <style>
+        :root {
+            --primary: #1e3a5f;
+            --accent: #c5a059;
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --text: #222222;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; }
+        header { text-align: center; margin-bottom: 25px; padding: 20px; background: var(--primary); color: white; border-radius: 12px; }
+        header h1 { margin: 0 0 8px 0; font-size: 26px; }
+        .main-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 800px) { .main-layout { grid-template-columns: 1fr; } }
+        .card { background: var(--card); padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .card h2 { font-size: 18px; color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-top: 0; }
+        label { display: block; margin-top: 12px; font-weight: 600; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        textarea { resize: vertical; height: 160px; }
+        button { background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 15px; font-weight: bold; }
+        button:hover { background-color: #152843; }
+        .output-box { width: 100%; height: 350px; background: #fafafa; border: 1px dashed #aaa; padding: 15px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; font-size: 13px; overflow-y: auto; }
+        .btn-copy { background-color: var(--accent); margin-top: 10px; }
+        .btn-copy:hover { background-color: #a88440; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>⚖️ منصة المحامي الإلكتروني الذكي</h1>
+        <div>مساعد صياغة المذكرات وتكييف القضايا طبقاً للتشريعات والقضاء اليمني</div>
+    </header>
+
+    <div class="main-layout">
+        <!-- قسم الإدخال -->
+        <div class="card">
+            <h2>📋 بيانات القضية والوقائع</h2>
+            
+            <label>المحكمة المختصة:</label>
+            <input type="text" id="court" value="محكمة جنوب صنعاء الابتدائية" placeholder="اسم المحكمة">
+
+            <label>رقم القضية / السنة:</label>
+            <input type="text" id="caseNo" placeholder="مثال: 145 لسنة 1446هـ">
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>اسم الموكل:</label>
+                    <input type="text" id="client" placeholder="المدعي / المدعى عليه">
+                </div>
+                <div style="flex: 1;">
+                    <label>اسم الخصم:</label>
+                    <input type="text" id="opponent" placeholder="الطرف المقابل">
+                </div>
+            </div>
+
+            <label>نوع المحرر القضائي:</label>
+            <select id="docType">
+                <option value="عريضة دعوى مبتدأة">عريضة دعوى مبتدأة</option>
+                <option value="مذكرة رد ودفاع موضوعي">مذكرة رد ودفاع موضوعي</option>
+                <option value="عريضة استئناف حكم">عريضة استئناف حكم</option>
+                <option value="دفع بعدم قبول الدعوى / شكل">دفع شكلي (مرافعات)</option>
+                <option value="طلب حجز تحفظي عاجل">طلب أمر على عريضة</option>
+            </select>
+
+            <label>وقائع النزاع والمستندات المتوفرة:</label>
+            <textarea id="facts" placeholder="اشرح تفاصيل النزاع هنا بالتسلسل التاريخي والمستندات الموجودة بحوزتك..."></textarea>
+
+            <button onclick="generatePleading()">⚡ تحليل وصياغة المذكرة فوراً</button>
+        </div>
+
+        <!-- قسم المخرجات -->
+        <div class="card">
+            <h2>📄 المسودة والأسانيد القانونية</h2>
+            <div id="output" class="output-box">ستظهر العريضة المصاغة والمعدّة وفق القانون اليمني هنا...</div>
+            <button class="btn-copy" onclick="copyResult()">📋 نسخ نص المذكرة</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function generatePleading() {
+    const court = document.getElementById('court').value || '[اسم المحكمة]';
+    const caseNo = document.getElementById('caseNo').value || '[غير محدد]';
+    const client = document.getElementById('client').value || '[الموكل]';
+    const opponent = document.getElementById('opponent').value || '[الخصم]';
+    const docType = document.getElementById('docType').value;
+    const facts = document.getElementById('facts').value || 'لم يتم إدراج تفاصيل وقائع إضافية.';
+
+    const draft = `فضيلة القاضي رئيس جلسة (${court}) المحترم
+حفظكم الله ورعاكم،،،
+
+الموضوع: ${docType}
+في القضية رقم: (${caseNo})
+
+مقدمة من الموكل: ${client}
+ضــــــــــــد الخصـم: ${opponent}
+
+السلام عليكم ورحمة الله وبركاته،، وبعد:
+
+أولاً: الوقائع:
+${facts}
+
+ثانياً: الأسانيد القانونية (طبقاً للتشريع اليمني):
+1. إعمالاً لأحكام قانون المرافعات والتنفيذ المدني اليمني رقم (40) لسنة 2002م وتعديلاته في إجراءات وقواعد صحة الدعوى والخصومة.
+2. استناداً إلى مواد القانون المدني اليمني رقم (14) لسنة 2002م وقانون الإثبات الشرعي رقم (21) لسنة 1992م وتعديلاته في حجية المستندات والالتزامات التعاقدية.
+3. بالبناء على القواعد والمبادئ القضائية المستقرة الصادرة عن المحكمة العليا للجمهورية اليمنية.
+
+ثالثاً: الطلبات الختامية:
+وعليه، يلتمس الموكل من عدالة المحكمة الموقرة التكرم بالحكم بالآتي:
+1. قبول (${docType}) شكلاً وموضوعاً.
+2. الحكم بإلزام الخصم بطلبات الموكل كاملة وفقاً للثابت بالأوراق.
+3. تحميل الخصم كامل أتعاب المحاماة ومخاسير التقاضي عملاً بأحكام قانون المرافعات.
+
+وتقبلوا فائق الاحترام والتقدير،،،
+عن الموكل / محاميه وكيل القضية
+`;
+
+    document.getElementById('output').textContent = draft;
+}
+
+function copyResult() {
+    const text = document.getElementById('output').textContent;
+    navigator.clipboard.writeText(text);
+    alert('تم نسخ المذكرة بنجاح إلى الحافظة!');
+}
+</script>
+
+</body>
+</html>
